@@ -1,0 +1,41 @@
+{
+  "name": "@liquid-bricks/backend-host",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "clear && node --env-file=.env test/run.js",
+    "start": "node index.js",
+    "dev": "npx nodemon index.js",
+    "migrate": "node migrations/run.mjs",
+    "migrate:create": "node migrations/create.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "@liquid-bricks/lib-nats-context": "github:LiquidBricks/lib-nats-context#345a6a5d748e253bee39e3dd1ca33719a35f9ad3",
+    "@liquid-bricks/iface-graphql": "github:LiquidBricks/iface-graphql#33e537f8f524eaae6a522c2d92d5cff28605a10b",
+    "@liquid-bricks/lib-nats-graph": "github:LiquidBricks/lib-nats-graph#459ea5a6b287d7af06e222b2bed6f786b9afffbb",
+    "@liquid-bricks/gw-ws-components": "github:LiquidBricks/gw-ws-components#3460237d9b1feaf7788b30918cfcf41af09bbcbe",
+    "@liquid-bricks/obs-collector": "github:LiquidBricks/obs-collector#a091a7a7db732747e8047ca55e4c39bad1560478",
+    "@liquid-bricks/svc-component-orchestrator": "github:LiquidBricks/svc-component-orchestrator#1cffa2e528333820837b83dc63af0ce3a2fdc65e",
+    "@liquid-bricks/lib-diagnostics": "github:LiquidBricks/lib-diagnostics#7b27e34c65bcbfb75a3c16aaae7ace38bd5f2636",
+    "@liquid-bricks/lib-nats-subject": "github:LiquidBricks/lib-nats-subject#8d2f242951a919ba8f213a5a38f7b49546592548",
+    "@nats-io/jetstream": "^3.0.2",
+    "@nats-io/kv": "^3.0.2",
+    "@nats-io/transport-node": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "graphql": "^16.12.0",
+    "graphql-http": "^1.22.4",
+    "node-cron": "^3.0.3",
+    "ulid": "^3.0.0",
+    "umzug": "^3.3.1",
+    "ws": "^8.18.3"
+  }
+}
