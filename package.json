@@ -18,6 +18,7 @@
   "type": "module",
   "dependencies": {
     "@liquid-bricks/lib-nats-context": "github:LiquidBricks/lib-nats-context#345a6a5d748e253bee39e3dd1ca33719a35f9ad3",
+    "@liquid-bricks/iface-eventstream": "github:LiquidBricks/iface-eventstream#a244924fe39c1416b540e117505e914797a4308f",
     "@liquid-bricks/iface-graphql": "github:LiquidBricks/iface-graphql#33e537f8f524eaae6a522c2d92d5cff28605a10b",
     "@liquid-bricks/lib-nats-graph": "github:LiquidBricks/lib-nats-graph#459ea5a6b287d7af06e222b2bed6f786b9afffbb",
     "@liquid-bricks/gw-ws-components": "github:LiquidBricks/gw-ws-components#0c955ff7c6ea5768da7cfc582ca24854344b8b3d",

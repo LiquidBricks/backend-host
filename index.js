@@ -4,6 +4,7 @@ import cors from 'cors';
 import cron from 'node-cron'
 import { createServer } from 'node:http'
 import { schema } from '@liquid-bricks/iface-graphql/schema';
+import { eventstream } from '@liquid-bricks/iface-eventstream';
 import { Consumer as orchestrator } from '@liquid-bricks/svc-component-orchestrator/consumer';
 import { collector } from '@liquid-bricks/obs-collector/collector';
 import { gateway } from '@liquid-bricks/gw-ws-components/gateway';
@@ -150,6 +151,8 @@ Promise.resolve()
 
     app.use(corsMiddleware);
     app.options('/graphql', corsMiddleware);
+    app.options('/eventstream', corsMiddleware);
+    app.get('/eventstream', corsMiddleware, eventstream());
 
     app.all(
       '/graphql',
