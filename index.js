@@ -87,7 +87,7 @@ Promise.resolve()
       natsContext,
       diagnostics,
       configuration: {
-        retention: RetentionPolicy.Workqueue,
+        retention: RetentionPolicy.Interest,
         subjects: [
           'tele.>',
           'metrics.>',
@@ -152,7 +152,10 @@ Promise.resolve()
     app.use(corsMiddleware);
     app.options('/graphql', corsMiddleware);
     app.options('/eventstream', corsMiddleware);
-    app.get('/eventstream', corsMiddleware, eventstream());
+    app.get('/eventstream', corsMiddleware, eventstream({
+      natsContext,
+      diagnostics,
+    }));
 
     app.all(
       '/graphql',
