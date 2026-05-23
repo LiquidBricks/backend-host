@@ -4,7 +4,7 @@ import cors from 'cors';
 import cron from 'node-cron'
 import { createServer } from 'node:http'
 import { schema } from '@liquid-bricks/iface-graphql/schema';
-import { eventstream } from '@liquid-bricks/iface-eventstream';
+import { COMPONENT_SERVICE_SUBJECTS, EVENTSTREAM_STREAM_NAME, eventstream } from '@liquid-bricks/iface-eventstream';
 import { Consumer as orchestrator } from '@liquid-bricks/svc-component-orchestrator/consumer';
 import { collector } from '@liquid-bricks/obs-collector/collector';
 import { gateway } from '@liquid-bricks/gw-ws-components/gateway';
@@ -80,8 +80,11 @@ Promise.resolve()
     // await resetNatsFactoryDefaults({ natsContext })
     const jsm = await natsContext.jetstreamManager();
 
-    // DIAGNOSTICS_STREAM
     try { await jsm.streams.delete('DIAGNOSTICS_STREAM'); } catch (_) { /* ignore if not found */ }
+    try { await jsm.streams.delete('COMPONENT_EXECUTION_STREAM'); } catch (_) { /* ignore if not found */ }
+    try { await jsm.streams.delete('COMPONENT_MANAGER_STREAM'); } catch (_) { /* ignore if not found */ }
+    try { await jsm.streams.delete(EVENTSTREAM_STREAM_NAME); } catch (_) { /* ignore if not found */ }
+
     await createGenericStream({
       name: 'DIAGNOSTICS_STREAM',
       natsContext,
@@ -94,41 +97,19 @@ Promise.resolve()
         ],
       },
     });
-    try { await jsm.streams.delete('COMPONENT_EXECUTION_STREAM'); } catch (_) { /* ignore if not found */ }
-    await createGenericStream({
-      name: 'COMPONENT_EXECUTION_STREAM',
-      natsContext,
-      diagnostics,
-      configuration: {
-        retention: RetentionPolicy.Interest,
-        subjects: [
-          'prod.component-service.*.*.exec.>',
-        ],
-      },
-    })
 
-    // COMPONENT_MANAGER_STREAM
-    try { await jsm.streams.delete('COMPONENT_MANAGER_STREAM'); } catch (_) { /* ignore if not found */ }
     await createGenericStream({
-      name: 'COMPONENT_MANAGER_STREAM',
+      name: EVENTSTREAM_STREAM_NAME,
       natsContext,
       diagnostics,
       configuration: {
         retention: RetentionPolicy.Interest,
-        subjects: [
-          'prod.component-service.*.*.evt.>',
-          'prod.component-service.*.*.cmd.>',
-        ],
+        subjects: COMPONENT_SERVICE_SUBJECTS,
       },
     });
-    // try {
-    //   await jsm.streams.purge('COMPONENT_MANAGER_STREAM');
-    // } catch (err) {
-    //   console.warn('Failed to purge COMPONENT_MANAGER_STREAM', err);
-    // }
   })
   .then(() => orchestrator({
-    streamName: "COMPONENT_MANAGER_STREAM",
+    streamName: EVENTSTREAM_STREAM_NAME,
     natsContext,
     g: graph.g,
     diagnostics,
@@ -155,6 +136,8 @@ Promise.resolve()
     app.get('/eventstream', corsMiddleware, eventstream({
       natsContext,
       diagnostics,
+      streamName: EVENTSTREAM_STREAM_NAME,
+      subjects: COMPONENT_SERVICE_SUBJECTS,
     }));
 
     app.all(
@@ -197,7 +180,7 @@ Promise.resolve()
     await gateway({
       server,
       path: '/componentAgent',
-      streamName: "COMPONENT_EXECUTION_STREAM",
+      streamName: EVENTSTREAM_STREAM_NAME,
       natsContext,
       diagnostics,
     });
