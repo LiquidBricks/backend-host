@@ -18,10 +18,10 @@
   "type": "module",
   "dependencies": {
     "@liquid-bricks/lib-nats-context": "github:LiquidBricks/lib-nats-context#345a6a5d748e253bee39e3dd1ca33719a35f9ad3",
-    "@liquid-bricks/iface-eventstream": "github:LiquidBricks/iface-eventstream#4c6359ace1f729795e74c6032e96728e5733acbb",
-    "@liquid-bricks/iface-graphql": "github:LiquidBricks/iface-graphql#33e537f8f524eaae6a522c2d92d5cff28605a10b",
+    "@liquid-bricks/iface-eventstream": "github:LiquidBricks/iface-eventstream#aa379d08db1e636f9af563b5b38acc1fba3da8a3",
+    "@liquid-bricks/iface-graphql": "github:LiquidBricks/iface-graphql#163c9fdc4b1588434dd6a5147ed18556d9666ef9",
     "@liquid-bricks/lib-nats-graph": "github:LiquidBricks/lib-nats-graph#459ea5a6b287d7af06e222b2bed6f786b9afffbb",
-    "@liquid-bricks/gw-ws-components": "github:LiquidBricks/gw-ws-components#0c955ff7c6ea5768da7cfc582ca24854344b8b3d",
+    "@liquid-bricks/gw-ws-components": "github:LiquidBricks/gw-ws-components#377af57b3fb16942a5fe2cd0cc461d0bf35abf90",
     "@liquid-bricks/obs-collector": "github:LiquidBricks/obs-collector#a091a7a7db732747e8047ca55e4c39bad1560478",
     "@liquid-bricks/svc-component-orchestrator": "github:LiquidBricks/svc-component-orchestrator#a562b6ecd5662adac2805c7f83df29564994473f",
     "@liquid-bricks/lib-diagnostics": "github:LiquidBricks/lib-diagnostics#7b27e34c65bcbfb75a3c16aaae7ace38bd5f2636",
