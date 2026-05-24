@@ -4,7 +4,7 @@ import cors from 'cors';
 import cron from 'node-cron'
 import { createServer } from 'node:http'
 import { schema } from '@liquid-bricks/iface-graphql/schema';
-import { COMPONENT_SERVICE_SUBJECTS, EVENTSTREAM_STREAM_NAME, eventstream } from '@liquid-bricks/iface-eventstream';
+import { eventstream } from '@liquid-bricks/iface-eventstream';
 import { Consumer as orchestrator } from '@liquid-bricks/svc-component-orchestrator/consumer';
 import { collector } from '@liquid-bricks/obs-collector/collector';
 import { gateway } from '@liquid-bricks/gw-ws-components/gateway';
@@ -74,48 +74,64 @@ const graph = Graph({
   diagnostics,
 })
 
+const COMPONENT_SERVICE_STREAM_NAME = 'COMPONENT_SERVICE_STREAM'
+const DIAGNOSTICS_STREAM_NAME = 'DIAGNOSTICS_STREAM'
+const DIAGNOSTICS_SUBJECTS = [
+  'tele.>',
+  'metrics.>',
+]
+const COMPONENT_SERVICE_SUBJECTS = [
+  'prod.component-service.*.*.cmd.>',
+  'prod.component-service.*.*.evt.>',
+  'prod.component-service.*.*.exec.>',
+]
+const UNLIMITED_LIMITS = {
+  max_msgs: -1,
+  max_msgs_per_subject: -1,
+  max_bytes: -1,
+  max_age: 0,
+  max_msg_size: -1,
+}
+
 Promise.resolve()
   // Recreate streams defined in migrations to ensure desired config
   .then(async () => {
     // await resetNatsFactoryDefaults({ natsContext })
     const jsm = await natsContext.jetstreamManager();
 
-    try { await jsm.streams.delete('DIAGNOSTICS_STREAM'); } catch (_) { /* ignore if not found */ }
-    try { await jsm.streams.delete('COMPONENT_EXECUTION_STREAM'); } catch (_) { /* ignore if not found */ }
-    try { await jsm.streams.delete('COMPONENT_MANAGER_STREAM'); } catch (_) { /* ignore if not found */ }
-    try { await jsm.streams.delete(EVENTSTREAM_STREAM_NAME); } catch (_) { /* ignore if not found */ }
+    try { await jsm.streams.delete(COMPONENT_SERVICE_STREAM_NAME); } catch (_) { /* ignore if not found */ }
+    try { await jsm.streams.delete(DIAGNOSTICS_STREAM_NAME); } catch (_) { /* ignore if not found */ }
 
     await createGenericStream({
-      name: 'DIAGNOSTICS_STREAM',
+      name: DIAGNOSTICS_STREAM_NAME,
       natsContext,
       diagnostics,
       configuration: {
-        retention: RetentionPolicy.Interest,
-        subjects: [
-          'tele.>',
-          'metrics.>',
-        ],
+        retention: RetentionPolicy.Limits,
+        subjects: DIAGNOSTICS_SUBJECTS,
+        ...UNLIMITED_LIMITS,
       },
     });
 
     await createGenericStream({
-      name: EVENTSTREAM_STREAM_NAME,
+      name: COMPONENT_SERVICE_STREAM_NAME,
       natsContext,
       diagnostics,
       configuration: {
-        retention: RetentionPolicy.Interest,
+        retention: RetentionPolicy.Limits,
         subjects: COMPONENT_SERVICE_SUBJECTS,
+        ...UNLIMITED_LIMITS,
       },
     });
   })
   .then(() => orchestrator({
-    streamName: EVENTSTREAM_STREAM_NAME,
+    streamName: COMPONENT_SERVICE_STREAM_NAME,
     natsContext,
     g: graph.g,
     diagnostics,
   }))
   .then(() => collector({
-    streamName: "DIAGNOSTICS_STREAM",
+    streamName: DIAGNOSTICS_STREAM_NAME,
     natsContext,
     diagnostics,
   }))
@@ -136,7 +152,7 @@ Promise.resolve()
     app.get('/eventstream', corsMiddleware, eventstream({
       natsContext,
       diagnostics,
-      streamName: EVENTSTREAM_STREAM_NAME,
+      streamName: COMPONENT_SERVICE_STREAM_NAME,
       subjects: COMPONENT_SERVICE_SUBJECTS,
     }));
 
@@ -180,7 +196,7 @@ Promise.resolve()
     await gateway({
       server,
       path: '/componentAgent',
-      streamName: EVENTSTREAM_STREAM_NAME,
+      streamName: COMPONENT_SERVICE_STREAM_NAME,
       natsContext,
       diagnostics,
     });

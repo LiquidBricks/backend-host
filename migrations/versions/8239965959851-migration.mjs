@@ -12,41 +12,38 @@ export const natsContext = createNatsContext({ servers: NATS_IP_ADDRESS })
 export const diagnostics = createDiagnostics()
 
 export async function up() {
-  // Ensure per-consumer streams exist (recreate to match desired config)
+  // Ensure component service streams exist (recreate to match desired config)
   await createGenericStream({
     name: 'DIAGNOSTICS_STREAM',
     natsContext,
     diagnostics,
     configuration: {
-      retention: RetentionPolicy.Workqueue,
+      retention: RetentionPolicy.Limits,
       subjects: ['diagnostics.*'],
+      max_msgs: -1,
+      max_msgs_per_subject: -1,
+      max_bytes: -1,
+      max_age: 0,
+      max_msg_size: -1,
     },
   })
 
   await createGenericStream({
-    name: 'COMPONENT_MANAGER_STREAM',
+    name: 'COMPONENT_SERVICE_STREAM',
     natsContext,
     diagnostics,
     configuration: {
-      retention: RetentionPolicy.Workqueue,
+      retention: RetentionPolicy.Limits,
       subjects: [
-        'component.command',
-        'component.event',
-        'componentInstance.command',
-        'componentInstance.event',
+        'prod.component-service.*.*.cmd.>',
+        'prod.component-service.*.*.evt.>',
+        'prod.component-service.*.*.exec.>',
       ],
-    },
-  })
-
-  await createGenericStream({
-    name: 'COMPONENT_EXECUTION_STREAM',
-    natsContext,
-    diagnostics,
-    configuration: {
-      retention: RetentionPolicy.Workqueue,
-      subjects: [
-        'componentNode.>',
-      ],
+      max_msgs: -1,
+      max_msgs_per_subject: -1,
+      max_bytes: -1,
+      max_age: 0,
+      max_msg_size: -1,
     },
   })
 }
