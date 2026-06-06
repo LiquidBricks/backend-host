@@ -6,10 +6,16 @@ import { serviceConfiguration } from '../../provider/serviceConfiguration/dotenv
 import { RetentionPolicy } from '@nats-io/jetstream'
 import { createStream as createGenericStream } from '../../stream/index.js'
 import { resetNatsFactoryDefaults } from '../../stream/helper.js'
+import { create as createBasicSubject } from '@liquid-bricks/lib-nats-subject/create/basic'
+import { events as natsEvents } from '@liquid-bricks/lib-nats-subject/events/nats'
 
 const { NATS_IP_ADDRESS } = serviceConfiguration()
 export const natsContext = createNatsContext({ servers: NATS_IP_ADDRESS })
 export const diagnostics = createDiagnostics()
+const componentServiceFilterSubject = (channel) => createBasicSubject(natsEvents['*'].component_service['*']['*'][channel]['>'])
+  .forSubscribe()
+  .env('prod')
+  .build()
 
 export async function up() {
   // Ensure component service streams exist (recreate to match desired config)
@@ -35,9 +41,9 @@ export async function up() {
     configuration: {
       retention: RetentionPolicy.Limits,
       subjects: [
-        'prod.component-service.*.*.cmd.>',
-        'prod.component-service.*.*.evt.>',
-        'prod.component-service.*.*.exec.>',
+        componentServiceFilterSubject('cmd'),
+        componentServiceFilterSubject('evt'),
+        componentServiceFilterSubject('exec'),
       ],
       max_msgs: -1,
       max_msgs_per_subject: -1,

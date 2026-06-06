@@ -14,6 +14,9 @@ import { diagnostics as createDiagnostics } from '@liquid-bricks/lib-diagnostics
 import { createNatsMetrics } from '@liquid-bricks/lib-diagnostics/metrics/nats'
 import { createNatsLogger } from '@liquid-bricks/lib-diagnostics/loggers/nats'
 import { create as createTelemetrySubject } from '@liquid-bricks/lib-nats-subject/create/telemetry'
+import { create as createBasicSubject } from '@liquid-bricks/lib-nats-subject/create/basic'
+import { diagnostics as diagnosticsSubjectFactory } from '@liquid-bricks/lib-nats-subject'
+import { events as natsEvents } from '@liquid-bricks/lib-nats-subject/events/nats'
 import { serviceConfiguration } from './provider/serviceConfiguration/dotenv/index.js'
 import { RetentionPolicy } from '@nats-io/jetstream'
 import { createStream as createGenericStream } from './stream/index.js'
@@ -76,14 +79,21 @@ const graph = Graph({
 
 const COMPONENT_SERVICE_STREAM_NAME = 'COMPONENT_SERVICE_STREAM'
 const DIAGNOSTICS_STREAM_NAME = 'DIAGNOSTICS_STREAM'
+const componentServiceFilterSubject = (channel) => createBasicSubject(natsEvents['*'].component_service['*']['*'][channel]['>'])
+  .forSubscribe()
+  .env('prod')
+  .build()
+const diagnosticsFilterSubject = (root) => diagnosticsSubjectFactory.create(natsEvents[root]['>'])
+  .forSubscribe()
+  .build()
 const DIAGNOSTICS_SUBJECTS = [
-  'tele.>',
-  'metrics.>',
+  diagnosticsFilterSubject('tele'),
+  diagnosticsFilterSubject('metrics'),
 ]
 const COMPONENT_SERVICE_SUBJECTS = [
-  'prod.component-service.*.*.cmd.>',
-  'prod.component-service.*.*.evt.>',
-  'prod.component-service.*.*.exec.>',
+  componentServiceFilterSubject('cmd'),
+  componentServiceFilterSubject('evt'),
+  componentServiceFilterSubject('exec'),
 ]
 const UNLIMITED_LIMITS = {
   max_msgs: -1,
