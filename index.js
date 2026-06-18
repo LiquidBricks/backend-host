@@ -83,6 +83,11 @@ const componentServiceFilterSubject = (channel) => createBasicSubject(natsEvents
   .forSubscribe()
   .env('prod')
   .build()
+const gatewayComputeFunctionSubject = createBasicSubject(natsEvents['*'].gateway['*']['*'].cmd.component.compute_function.v1['*'])
+  .forSubscribe()
+  .env('prod')
+  .id('>')
+  .build()
 const diagnosticsFilterSubject = (root) => diagnosticsSubjectFactory.create(natsEvents[root]['>'])
   .forSubscribe()
   .build()
@@ -94,6 +99,7 @@ const COMPONENT_SERVICE_SUBJECTS = [
   componentServiceFilterSubject('cmd'),
   componentServiceFilterSubject('evt'),
   componentServiceFilterSubject('exec'),
+  gatewayComputeFunctionSubject,
 ]
 const UNLIMITED_LIMITS = {
   max_msgs: -1,
