@@ -6,6 +6,7 @@ import { createServer } from 'node:http'
 import { schema } from '@liquid-bricks/iface-graphql/schema';
 import { eventstream } from '@liquid-bricks/iface-eventstream';
 import { Consumer as orchestrator } from '@liquid-bricks/svc-component-orchestrator/consumer';
+import { Consumer as domainProjector } from '@liquid-bricks/svc-domain-projector/consumer';
 import { collector } from '@liquid-bricks/obs-collector/collector';
 import { gateway } from '@liquid-bricks/gw-ws-components/gateway';
 import { Graph } from '@liquid-bricks/lib-nats-graph/graph';
@@ -79,7 +80,19 @@ const graph = Graph({
 
 const COMPONENT_SERVICE_STREAM_NAME = 'COMPONENT_SERVICE_STREAM'
 const DIAGNOSTICS_STREAM_NAME = 'DIAGNOSTICS_STREAM'
+const domainEdgeSubjectSpec = natsEvents['*']?.domain?.['*']?.['*']?.edge?.['>'] ?? {
+  env: '*',
+  ns: 'domain',
+  tenant: '*',
+  context: '*',
+  channel: 'edge',
+  entity: '>',
+}
 const componentServiceFilterSubject = (channel) => createBasicSubject(natsEvents['*'].component_service['*']['*'][channel]['>'])
+  .forSubscribe()
+  .env('prod')
+  .build()
+const domainEdgeFilterSubject = () => createBasicSubject(domainEdgeSubjectSpec)
   .forSubscribe()
   .env('prod')
   .build()
@@ -99,6 +112,7 @@ const COMPONENT_SERVICE_SUBJECTS = [
   componentServiceFilterSubject('cmd'),
   componentServiceFilterSubject('evt'),
   componentServiceFilterSubject('exec'),
+  domainEdgeFilterSubject(),
   gatewayComputeFunctionSubject,
 ]
 const UNLIMITED_LIMITS = {
@@ -141,6 +155,12 @@ Promise.resolve()
     });
   })
   .then(() => orchestrator({
+    streamName: COMPONENT_SERVICE_STREAM_NAME,
+    natsContext,
+    g: graph.g,
+    diagnostics,
+  }))
+  .then(() => domainProjector({
     streamName: COMPONENT_SERVICE_STREAM_NAME,
     natsContext,
     g: graph.g,
