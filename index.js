@@ -80,39 +80,20 @@ const graph = Graph({
 
 const COMPONENT_SERVICE_STREAM_NAME = 'COMPONENT_SERVICE_STREAM'
 const DIAGNOSTICS_STREAM_NAME = 'DIAGNOSTICS_STREAM'
-const domainEdgeSubjectSpec = natsEvents['*']?.domain?.['*']?.['*']?.edge?.['>'] ?? {
-  env: '*',
-  ns: 'domain',
-  tenant: '*',
-  context: '*',
-  channel: 'edge',
-  entity: '>',
-}
-const componentServiceFilterSubject = (channel) => createBasicSubject(natsEvents['*'].component_service['*']['*'][channel]['>'])
-  .forSubscribe()
-  .env('prod')
-  .build()
-const domainEdgeFilterSubject = () => createBasicSubject(domainEdgeSubjectSpec)
-  .forSubscribe()
-  .env('prod')
-  .build()
 const gatewayComputeFunctionSubject = createBasicSubject(natsEvents['*'].gateway['*']['*'].cmd.component.compute_function.v1['*'])
   .forSubscribe()
   .env('prod')
   .id('>')
   .build()
-const diagnosticsFilterSubject = (root) => diagnosticsSubjectFactory.create(natsEvents[root]['>'])
-  .forSubscribe()
-  .build()
 const DIAGNOSTICS_SUBJECTS = [
-  diagnosticsFilterSubject('tele'),
-  diagnosticsFilterSubject('metrics'),
+  diagnosticsSubjectFactory.create(natsEvents.tele['>']).forSubscribe().build(),
+  diagnosticsSubjectFactory.create(natsEvents.metrics['>']).forSubscribe().build(),
 ]
 const COMPONENT_SERVICE_SUBJECTS = [
-  componentServiceFilterSubject('cmd'),
-  componentServiceFilterSubject('evt'),
-  componentServiceFilterSubject('exec'),
-  domainEdgeFilterSubject(),
+  createBasicSubject(natsEvents['*'].component_service['*']['*'].cmd['>']).forSubscribe().env('prod').build(),
+  createBasicSubject(natsEvents['*'].component_service['*']['*'].evt['>']).forSubscribe().env('prod').build(),
+  createBasicSubject(natsEvents['*'].component_service['*']['*'].exec['>']).forSubscribe().env('prod').build(),
+  createBasicSubject(natsEvents['*'].domain['*']['*'].edge['>']).forSubscribe().env('prod').build(),
   gatewayComputeFunctionSubject,
 ]
 const UNLIMITED_LIMITS = {

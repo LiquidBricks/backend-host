@@ -12,11 +12,6 @@ import { events as natsEvents } from '@liquid-bricks/lib-nats-subject/events/nat
 const { NATS_IP_ADDRESS } = serviceConfiguration()
 export const natsContext = createNatsContext({ servers: NATS_IP_ADDRESS })
 export const diagnostics = createDiagnostics()
-const componentServiceFilterSubject = (channel) => createBasicSubject(natsEvents['*'].component_service['*']['*'][channel]['>'])
-  .forSubscribe()
-  .env('prod')
-  .build()
-
 export async function up() {
   // Ensure component service streams exist (recreate to match desired config)
   await createGenericStream({
@@ -41,9 +36,9 @@ export async function up() {
     configuration: {
       retention: RetentionPolicy.Limits,
       subjects: [
-        componentServiceFilterSubject('cmd'),
-        componentServiceFilterSubject('evt'),
-        componentServiceFilterSubject('exec'),
+        createBasicSubject(natsEvents['*'].component_service['*']['*'].cmd['>']).forSubscribe().env('prod').build(),
+        createBasicSubject(natsEvents['*'].component_service['*']['*'].evt['>']).forSubscribe().env('prod').build(),
+        createBasicSubject(natsEvents['*'].component_service['*']['*'].exec['>']).forSubscribe().env('prod').build(),
       ],
       max_msgs: -1,
       max_msgs_per_subject: -1,
