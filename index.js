@@ -85,6 +85,28 @@ const gatewayComputeFunctionSubject = createBasicSubject(natsEvents['*'].gateway
   .env('prod')
   .id('>')
   .build()
+const domainVertexGateResultComputedSubject = createBasicSubject({
+  env: 'prod',
+  ns: 'domain',
+  tenant: '*',
+  context: '*',
+  channel: 'vertex',
+  entity: 'gateInstanceRef',
+  action: 'result_computed',
+  version: 'v1',
+  id: '*',
+}).forSubscribe().build()
+const domainVertexStateMachineCompletedSubject = createBasicSubject({
+  env: 'prod',
+  ns: 'domain',
+  tenant: '*',
+  context: '*',
+  channel: 'vertex',
+  entity: 'stateMachine',
+  action: 'completed',
+  version: 'v1',
+  id: '*',
+}).forSubscribe().build()
 const DIAGNOSTICS_SUBJECTS = [
   diagnosticsSubjectFactory.create(natsEvents.tele['>']).forSubscribe().build(),
   diagnosticsSubjectFactory.create(natsEvents.metrics['>']).forSubscribe().build(),
@@ -94,6 +116,8 @@ const COMPONENT_SERVICE_SUBJECTS = [
   createBasicSubject(natsEvents['*'].component_service['*']['*'].evt['>']).forSubscribe().env('prod').build(),
   createBasicSubject(natsEvents['*'].component_service['*']['*'].exec['>']).forSubscribe().env('prod').build(),
   createBasicSubject(natsEvents['*'].domain['*']['*'].edge['>']).forSubscribe().env('prod').build(),
+  domainVertexGateResultComputedSubject,
+  domainVertexStateMachineCompletedSubject,
   gatewayComputeFunctionSubject,
 ]
 const UNLIMITED_LIMITS = {
