@@ -12,28 +12,15 @@ import { events as natsEvents } from '@liquid-bricks/lib-nats-subject/events/nat
 const { NATS_IP_ADDRESS } = serviceConfiguration()
 export const natsContext = createNatsContext({ servers: NATS_IP_ADDRESS })
 export const diagnostics = createDiagnostics()
-const domainVertexGateResultComputedSubject = createBasicSubject({
-  env: 'prod',
-  ns: 'domain',
-  tenant: '*',
-  context: '*',
-  channel: 'vertex',
-  entity: 'gateInstanceRef',
-  action: 'result_computed',
-  version: 'v1',
-  id: '*',
-}).forSubscribe().build()
-const domainVertexStateMachineCompletedSubject = createBasicSubject({
-  env: 'prod',
-  ns: 'domain',
-  tenant: '*',
-  context: '*',
-  channel: 'vertex',
-  entity: 'stateMachine',
-  action: 'completed',
-  version: 'v1',
-  id: '*',
-}).forSubscribe().build()
+const domainVertexGateResultComputedSubject = createBasicSubject(
+  natsEvents['*'].domain['*']['*'].vertex.gateInstanceRef.result_computed.v1['*'],
+).forSubscribe().env('prod').build()
+const domainVertexStateMachineCompletedSubject = createBasicSubject(
+  natsEvents['*'].domain['*']['*'].vertex.stateMachine.completed.v1['*'],
+).forSubscribe().env('prod').build()
+const domainVertexStateMachineStartedSubject = createBasicSubject(
+  natsEvents['*'].domain['*']['*'].vertex.stateMachine.started.v1['*'],
+).forSubscribe().env('prod').build()
 export async function up() {
   // Ensure component service streams exist (recreate to match desired config)
   await createGenericStream({
@@ -64,6 +51,7 @@ export async function up() {
         createBasicSubject(natsEvents['*'].domain['*']['*'].edge['>']).forSubscribe().env('prod').build(),
         domainVertexGateResultComputedSubject,
         domainVertexStateMachineCompletedSubject,
+        domainVertexStateMachineStartedSubject,
       ],
       max_msgs: -1,
       max_msgs_per_subject: -1,
