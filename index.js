@@ -85,9 +85,6 @@ const gatewayComputeFunctionSubject = createBasicSubject(natsEvents['*'].gateway
   .env('prod')
   .id('>')
   .build()
-const domainVertexGateResultComputedSubject = createBasicSubject(
-  natsEvents['*'].domain['*']['*'].vertex.gateInstanceRef.result_computed.v1['*'],
-).forSubscribe().env('prod').build()
 const domainVertexStateMachineCompletedSubject = createBasicSubject(
   natsEvents['*'].domain['*']['*'].vertex.stateMachine.completed.v1['*'],
 ).forSubscribe().env('prod').build()
@@ -103,7 +100,6 @@ const COMPONENT_SERVICE_SUBJECTS = [
   createBasicSubject(natsEvents['*'].component_service['*']['*'].evt['>']).forSubscribe().env('prod').build(),
   createBasicSubject(natsEvents['*'].component_service['*']['*'].exec['>']).forSubscribe().env('prod').build(),
   createBasicSubject(natsEvents['*'].domain['*']['*'].edge['>']).forSubscribe().env('prod').build(),
-  domainVertexGateResultComputedSubject,
   domainVertexStateMachineCompletedSubject,
   domainVertexStateMachineStartedSubject,
   gatewayComputeFunctionSubject,

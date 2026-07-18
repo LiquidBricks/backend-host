@@ -12,9 +12,6 @@ import { events as natsEvents } from '@liquid-bricks/lib-nats-subject/events/nat
 const { NATS_IP_ADDRESS } = serviceConfiguration()
 export const natsContext = createNatsContext({ servers: NATS_IP_ADDRESS })
 export const diagnostics = createDiagnostics()
-const domainVertexGateResultComputedSubject = createBasicSubject(
-  natsEvents['*'].domain['*']['*'].vertex.gateInstanceRef.result_computed.v1['*'],
-).forSubscribe().env('prod').build()
 const domainVertexStateMachineCompletedSubject = createBasicSubject(
   natsEvents['*'].domain['*']['*'].vertex.stateMachine.completed.v1['*'],
 ).forSubscribe().env('prod').build()
@@ -49,7 +46,6 @@ export async function up() {
         createBasicSubject(natsEvents['*'].component_service['*']['*'].evt['>']).forSubscribe().env('prod').build(),
         createBasicSubject(natsEvents['*'].component_service['*']['*'].exec['>']).forSubscribe().env('prod').build(),
         createBasicSubject(natsEvents['*'].domain['*']['*'].edge['>']).forSubscribe().env('prod').build(),
-        domainVertexGateResultComputedSubject,
         domainVertexStateMachineCompletedSubject,
         domainVertexStateMachineStartedSubject,
       ],
