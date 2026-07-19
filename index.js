@@ -100,6 +100,7 @@ const COMPONENT_SERVICE_SUBJECTS = [
   createBasicSubject(natsEvents['*'].component_service['*']['*'].evt['>']).forSubscribe().env('prod').build(),
   createBasicSubject(natsEvents['*'].component_service['*']['*'].exec['>']).forSubscribe().env('prod').build(),
   createBasicSubject(natsEvents['*'].domain['*']['*'].edge['>']).forSubscribe().env('prod').build(),
+  'prod.domain.*.*.snapshot.>',
   domainVertexStateMachineCompletedSubject,
   domainVertexStateMachineStartedSubject,
   gatewayComputeFunctionSubject,
