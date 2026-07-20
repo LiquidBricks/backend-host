@@ -23,6 +23,7 @@ const stream = run({
   concurrency: true,
   globPatterns: [
     path.resolve(import.meta.dirname, 'stream', '**/*.mjs'),
+    path.resolve(import.meta.dirname, 'startup', '**/*.mjs'),
   ]
 })
   .on('test:fail', () => {

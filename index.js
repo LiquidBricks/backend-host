@@ -7,6 +7,7 @@ import { schema } from '@liquid-bricks/iface-graphql/schema';
 import { eventstream } from '@liquid-bricks/iface-eventstream';
 import { Consumer as orchestrator } from '@liquid-bricks/svc-component-orchestrator/consumer';
 import { Consumer as domainProjector } from '@liquid-bricks/svc-domain-projector/consumer';
+import { Consumer as domainSnapshot } from '@liquid-bricks/svc-domain-snapshot/consumer';
 import { collector } from '@liquid-bricks/obs-collector/collector';
 import { gateway } from '@liquid-bricks/gw-ws-components/gateway';
 import { Graph } from '@liquid-bricks/lib-nats-graph/graph';
@@ -151,6 +152,12 @@ Promise.resolve()
     diagnostics,
   }))
   .then(() => domainProjector({
+    streamName: COMPONENT_SERVICE_STREAM_NAME,
+    natsContext,
+    g: graph.g,
+    diagnostics,
+  }))
+  .then(() => domainSnapshot({
     streamName: COMPONENT_SERVICE_STREAM_NAME,
     natsContext,
     g: graph.g,
