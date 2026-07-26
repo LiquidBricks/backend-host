@@ -37,6 +37,35 @@ test('stream/index#createStream: creates stream with provided subjects', async (
   }
 })
 
+test('stream/index#createStream: updates an existing stream in place', async () => {
+  const name = `bb_update_${Date.now()}`
+  const beforeSubject = `unit.update.before.${Date.now()}`
+  const afterSubject = `unit.update.after.${Date.now()}`
+  const jsm = await natsContext.jetstreamManager()
+  try {
+    await createStream({
+      name,
+      natsContext,
+      diagnostics,
+      configuration: { subjects: [beforeSubject] },
+    })
+    await natsContext.publish(beforeSubject, JSON.stringify({ retained: true }))
+
+    await createStream({
+      name,
+      natsContext,
+      diagnostics,
+      configuration: { subjects: [afterSubject] },
+    })
+
+    const info = await jsm.streams.info(name)
+    assert.deepEqual(info?.config?.subjects, [afterSubject])
+    assert.equal(info?.state?.messages, 1, 'stream update must preserve retained messages')
+  } finally {
+    try { await jsm.streams.delete(name) } catch { }
+  }
+})
+
 test('stream/index#createStream: overlap throws DiagnosticError and preserves existing stream', async () => {
   const nameA = `bb_gen_A_${Date.now()}`
   const nameB = `bb_gen_B_${Date.now()}`

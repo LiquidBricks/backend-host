@@ -1,4 +1,5 @@
 import { Codes } from '../codes.js';
+import { JetStreamApiCodes } from '@nats-io/jetstream'
 // Generic stream creator
 // Params: { name, natsContext, diagnostics, configuration }
 // - name: string stream name
@@ -9,9 +10,17 @@ export async function createStream({ name, natsContext, diagnostics, configurati
   const jsm = await natsContext.jetstreamManager();
 
   try {
-    await jsm.streams.add({ name, ...configuration });
+    return await jsm.streams.update(name, configuration)
   } catch (err) {
-    await reportCreateStreamError({ err, name, configuration, natsContext, diagnostics });
+    if (err?.code !== JetStreamApiCodes.StreamNotFound) {
+      return reportCreateStreamError({ err, name, configuration, natsContext, diagnostics })
+    }
+  }
+
+  try {
+    return await jsm.streams.add({ name, ...configuration })
+  } catch (err) {
+    return reportCreateStreamError({ err, name, configuration, natsContext, diagnostics })
   }
 }
 

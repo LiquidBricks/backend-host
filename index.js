@@ -22,7 +22,6 @@ import { events as natsEvents } from '@liquid-bricks/lib-nats-subject/events/nat
 import { serviceConfiguration } from './provider/serviceConfiguration/dotenv/index.js'
 import { RetentionPolicy } from '@nats-io/jetstream'
 import { createStream as createGenericStream } from './stream/index.js'
-import { resetNatsFactoryDefaults } from './stream/helper.js';
 
 const formattedTimestamp = () => {
   const now = new Date()
@@ -92,6 +91,9 @@ const domainVertexStateMachineCompletedSubject = createBasicSubject(
 const domainVertexStateMachineStartedSubject = createBasicSubject(
   natsEvents['*'].domain['*']['*'].vertex.stateMachine.started.v1['*'],
 ).forSubscribe().env('prod').build()
+const domainVertexComponentInstanceCreatedSubject = createBasicSubject(
+  natsEvents['*'].domain['*']['*'].vertex.componentInstance.created.v1['*'],
+).forSubscribe().env('prod').build()
 const DIAGNOSTICS_SUBJECTS = [
   diagnosticsSubjectFactory.create(natsEvents.tele['>']).forSubscribe().build(),
   diagnosticsSubjectFactory.create(natsEvents.metrics['>']).forSubscribe().build(),
@@ -102,6 +104,7 @@ const COMPONENT_SERVICE_SUBJECTS = [
   createBasicSubject(natsEvents['*'].component_service['*']['*'].exec['>']).forSubscribe().env('prod').build(),
   createBasicSubject(natsEvents['*'].domain['*']['*'].edge['>']).forSubscribe().env('prod').build(),
   'prod.domain.*.*.snapshot.>',
+  domainVertexComponentInstanceCreatedSubject,
   domainVertexStateMachineCompletedSubject,
   domainVertexStateMachineStartedSubject,
   gatewayComputeFunctionSubject,
@@ -115,14 +118,8 @@ const UNLIMITED_LIMITS = {
 }
 
 Promise.resolve()
-  // Recreate streams defined in migrations to ensure desired config
+  // Reconcile streams in place so retained facts and durable progress survive restarts.
   .then(async () => {
-    // await resetNatsFactoryDefaults({ natsContext })
-    const jsm = await natsContext.jetstreamManager();
-
-    try { await jsm.streams.delete(COMPONENT_SERVICE_STREAM_NAME); } catch (_) { /* ignore if not found */ }
-    try { await jsm.streams.delete(DIAGNOSTICS_STREAM_NAME); } catch (_) { /* ignore if not found */ }
-
     await createGenericStream({
       name: DIAGNOSTICS_STREAM_NAME,
       natsContext,

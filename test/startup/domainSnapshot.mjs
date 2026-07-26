@@ -30,3 +30,20 @@ test('backend host installs and starts the domain snapshot consumer', () => {
   assert.match(snapshotRegistration, /g:\s*graph\.g/)
   assert.match(snapshotRegistration, /diagnostics/)
 })
+
+test('backend stream retains componentInstance created domain facts', () => {
+  const subjectsStart = backendHostSource.indexOf('const COMPONENT_SERVICE_SUBJECTS = [')
+  const subjectsEnd = backendHostSource.indexOf(']\nconst UNLIMITED_LIMITS', subjectsStart)
+  const componentServiceSubjects = backendHostSource.slice(subjectsStart, subjectsEnd)
+
+  assert.ok(subjectsStart >= 0, 'component service subjects are declared')
+  assert.ok(subjectsEnd > subjectsStart, 'component service subjects can be inspected')
+  assert.match(
+    backendHostSource,
+    /vertex\.componentInstance\.created\.v1\['\*'\]/,
+  )
+  assert.match(
+    componentServiceSubjects,
+    /domainVertexComponentInstanceCreatedSubject/,
+  )
+})
