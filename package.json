@@ -21,7 +21,7 @@
     "@liquid-bricks/iface-eventstream": "github:LiquidBricks/iface-eventstream#b42ea80138071d7e577a6162e93800e731cd1bc5",
     "@liquid-bricks/iface-graphql": "github:LiquidBricks/iface-graphql#9e8783912d68b7ddcc18e75b92e534402acbe844",
     "@liquid-bricks/lib-nats-graph": "github:LiquidBricks/lib-nats-graph#dcbbcd0b215a2e8cac8b745bd42203a174163eb7",
-    "@liquid-bricks/gw-ws-components": "github:LiquidBricks/gw-ws-components#373130222d6081ba8273bbf57a1930b35a879938",
+    "@liquid-bricks/gw-ws-components": "github:LiquidBricks/gw-ws-components#2ba14d68fecbaea0c06d1253e07816012015f18f",
     "@liquid-bricks/obs-collector": "github:LiquidBricks/obs-collector#0be4e9be9be7b3314ebad509b77744e6ff9e5e34",
     "@liquid-bricks/svc-component-orchestrator": "github:LiquidBricks/svc-component-orchestrator#d546834d633e71d62e60c8104378f9704edf4a1e",
     "@liquid-bricks/svc-domain-projector": "github:LiquidBricks/svc-domain-projector#7c0f2eeabfc992b0a60c7b28eb0853fab4cfe4cc",
