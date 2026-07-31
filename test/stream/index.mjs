@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 
 import { createStream } from '../../stream/index.js'
 import { diagnostics as makeDiagnostics } from '@liquid-bricks/lib-diagnostics'
-import { Codes } from '../../codes.js'
+import { STREAM_SUBJECT_OVERLAP } from '@liquid-bricks/lib-diagnostics/codes'
 import createNatsContext from '@liquid-bricks/lib-nats-context';
 import { serviceConfiguration } from '../../provider/serviceConfiguration/dotenv/index.js'
 
@@ -80,7 +80,7 @@ test('stream/index#createStream: overlap throws DiagnosticError and preserves ex
     } catch (e) { err = e }
 
     assert.ok(err instanceof diagnostics.DiagnosticError, 'expected DiagnosticError')
-    assert.equal(err.code, Codes.STREAM_SUBJECT_OVERLAP)
+    assert.equal(err.code, STREAM_SUBJECT_OVERLAP)
 
     const infoA = await jsm.streams.info(nameA)
     assert.equal(infoA?.config?.name, nameA)

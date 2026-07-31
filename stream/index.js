@@ -1,4 +1,7 @@
-import { Codes } from '../codes.js';
+import {
+  STREAM_CREATE_FAILED,
+  STREAM_SUBJECT_OVERLAP,
+} from '@liquid-bricks/lib-diagnostics/codes';
 import { JetStreamApiCodes } from '@nats-io/jetstream'
 // Generic stream creator
 // Params: { name, natsContext, diagnostics, configuration }
@@ -36,14 +39,14 @@ async function reportCreateStreamError({ err, name, configuration, natsContext, 
       subjects: configuration?.subjects,
     });
     diagnostics.error(
-      Codes.STREAM_SUBJECT_OVERLAP,
+      STREAM_SUBJECT_OVERLAP,
       'Subjects overlap with an existing stream',
       { name, configuration, ...meta },
       { cause: err },
     );
   } else {
     diagnostics.error(
-      Codes.STREAM_CREATE_FAILED,
+      STREAM_CREATE_FAILED,
       `Failed to create stream ${name}`,
       { name, configuration },
       { cause: err },
